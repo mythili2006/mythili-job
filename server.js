@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json());
 app.use('/resumes', express.static('resumes'));
 
-mongoose.connect('mongodb+srv://mythilip2023cse:Mythili13@mythili.avtia.mongodb.net/jobportal?retryWrites=true&w=majority');
+mongoose.connect('mongodb+srv://mythilip2023cse:Mythili%4013@mythili.avtia.mongodb.net/jobportal?retryWrites=true&w=majority');
 
 const userSchema = new mongoose.Schema({
   email: String,
