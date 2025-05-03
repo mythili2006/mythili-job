@@ -7,9 +7,9 @@ const path = require('path');
 const app = express();
 app.use(cors());
 app.use(express.json());
+mongoose.connect('mongodb+srv://mythilip2023cse:Mythili%4013@mythili.avtia.mongodb.net/jobportal?retryWrites=true&w=majority');
 app.use('/resumes', express.static('resumes'));
 
-mongoose.connect('mongodb+srv://mythilip2023cse:Mythili%4013@mythili.avtia.mongodb.net/jobportal?retryWrites=true&w=majority');
 
 const userSchema = new mongoose.Schema({
   email: String,
@@ -57,17 +57,20 @@ app.get('/jobs', async (req, res) => {
   const jobs = await Job.find();
   res.json(jobs);
 });
-
 app.post('/apply/:jobId', upload.single('resume'), async (req, res) => {
   const { applicantEmail } = req.body;
   const resumePath = req.file ? req.file.path : '';
-  const application = await Application.create({
-    jobId: req.params.jobId,
-    applicantEmail,
-    resumePath,
-    confirmation: ''
-  });
-  res.json(application);
+  try {
+    const application = await Application.create({
+      jobId: req.params.jobId,
+      applicantEmail,
+      resumePath,
+      confirmation: ''
+    });
+    res.json(application);
+  } catch (err) {
+    res.status(500).json({ error: 'Application failed', details: err.message });
+  }
 });
 
 app.get('/applications/:jobId', async (req, res) => {
@@ -84,5 +87,6 @@ app.post('/confirm/:appId', async (req, res) => {
   );
   res.json(app);
 });
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
