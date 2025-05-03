@@ -58,20 +58,40 @@ app.get('/jobs', async (req, res) => {
   res.json(jobs);
 });
 app.post('/apply/:jobId', upload.single('resume'), async (req, res) => {
+  console.log('--- Apply Endpoint Hit ---');
+  console.log('Job ID:', req.params.jobId);
+  console.log('Body:', req.body);
+  console.log('File:', req.file);
+
   const { applicantEmail } = req.body;
   const resumePath = req.file ? req.file.path : '';
+
   try {
+    if (!applicantEmail) {
+      throw new Error('Missing applicantEmail in request body');
+    }
+    if (!req.file) {
+      throw new Error('Resume file not received');
+    }
+
     const application = await Application.create({
       jobId: req.params.jobId,
       applicantEmail,
       resumePath,
       confirmation: ''
     });
+
+    console.log('Application saved:', application);
     res.json(application);
   } catch (err) {
-    res.status(500).json({ error: 'Application failed', details: err.message });
+    console.error('Error in /apply/:jobId:', err.message);
+    res.status(500).json({
+      error: 'Internal server error',
+      message: err.message
+    });
   }
 });
+
 
 app.get('/applications/:jobId', async (req, res) => {
   const apps = await Application.find({ jobId: req.params.jobId });
