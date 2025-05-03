@@ -3,13 +3,19 @@ const mongoose = require('mongoose');
 const multer = require('multer');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
-mongoose.connect('mongodb+srv://mythilip2023cse:Mythili%4013@mythili.avtia.mongodb.net/jobportal?retryWrites=true&w=majority');
-app.use('/resumes', express.static('resumes'));
 
+mongoose.connect('mongodb+srv://mythilip2023cse:Mythili%4013@mythili.avtia.mongodb.net/jobportal?retryWrites=true&w=majority');
+
+const resumesDir = path.join(__dirname, 'resumes');
+if (!fs.existsSync(resumesDir)) {
+  fs.mkdirSync(resumesDir);
+}
+app.use('/resumes', express.static('resumes'));
 
 const userSchema = new mongoose.Schema({
   email: String,
@@ -37,7 +43,11 @@ const Application = mongoose.model('Application', applicationSchema);
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, 'resumes'),
-  filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
+  filename: (req, file, cb) => {
+    const originalName = file.originalname.replace(/\s+/g, '_').replace(/[^\w.-]/g, '');
+    const timestamp = Date.now();
+    cb(null, `${timestamp}-${originalName}`);
+  }
 });
 const upload = multer({ storage });
 
@@ -57,6 +67,7 @@ app.get('/jobs', async (req, res) => {
   const jobs = await Job.find();
   res.json(jobs);
 });
+
 app.post('/apply/:jobId', upload.single('resume'), async (req, res) => {
   console.log('--- Apply Endpoint Hit ---');
   console.log('Job ID:', req.params.jobId);
@@ -91,7 +102,6 @@ app.post('/apply/:jobId', upload.single('resume'), async (req, res) => {
     });
   }
 });
-
 
 app.get('/applications/:jobId', async (req, res) => {
   const apps = await Application.find({ jobId: req.params.jobId });
