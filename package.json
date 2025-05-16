@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "name": "job_portal",
   "version": "0.1.0",
   "private": true,
@@ -40,5 +41,12 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+=======
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "mongoose": "^8.14.0",
+    "multer": "^1.4.5-lts.2"
+>>>>>>> c88638135197bb40de1fe878a7e5d8171f217fc3
   }
 }
